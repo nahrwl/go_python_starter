@@ -125,7 +125,7 @@ class Board:
                 if tboard.cells_match (pboard):
                     #print ("is ko")
                     ko = True
-            if not ko:
+            #if not ko:
                 #print("not ko")
             return not ko
         else: return True
