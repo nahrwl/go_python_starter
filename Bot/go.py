@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Ported from the Ants starter package from aichallenge 2011
 import sys
 import traceback
 import random
@@ -8,10 +9,12 @@ from math import sqrt
 
 EMPTY, FRIEND, ENEMY, LIBERTY, KO = range(0, 5)
 
-AIM = {'n': (-1, 0),
-       'e': (0, 1),
-       's': (1, 0),
-       'w': (0, -1)}
+ADJACENT = (
+    (-1, 0),
+    (0, 1),
+    (1, 0),
+    (0, -1)
+)
 
 class Go():
     def __init__(self):
@@ -90,24 +93,17 @@ class Go():
         
     def run(bot):
         'parse input, update game state and call the bot classes do_turn method'
-        ants = Ants()
-        map_data = ''
-        while(True):
+        not_finished = True
+        data = ''
+        while(not_finished):
             try:
                 current_line = sys.stdin.readline().rstrip('\r\n') # string new line char
-                if current_line.lower() == 'ready':
-                    ants.setup(map_data)
-                    bot.do_setup(ants)
-                    ants.finish_turn()
-                    map_data = ''
-                elif current_line.lower() == 'go':
-                    ants.update(map_data)
-                    # call the do_turn method of the class passed in
-                    bot.do_turn(ants)
-                    ants.finish_turn()
-                    map_data = ''
-                else:
-                    map_data += current_line + '\n'
+                data += current_line + "\n"
+                if current_line.lower().startswith("action move"):
+                    self.update(data)
+                    if (bot.game == None):
+                        bot.setup(self)
+                    bot.do_turn()
             except EOFError:
                 break
             except KeyboardInterrupt:
