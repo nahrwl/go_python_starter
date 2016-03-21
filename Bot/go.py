@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-# Ported from the Ants starter package from aichallenge 2011
+# Ported by Jude Hungerford from the Ants starter 
+# package from aichallenge 2011
 import sys
 import traceback
 import random
@@ -71,10 +72,6 @@ class Go():
                     pass # FIXME replace this?
 
 
-#    def setup(self, data):
-#        'parse initial input'
-#        self.update(data)
-                        
     def time_remaining(self):
         return self.last_timebank - int(1000 * (time.clock() - self.last_update))
     
