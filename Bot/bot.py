@@ -10,7 +10,7 @@ class Bot:
         self.game = game
 
     def do_turn(self):
-        legal = self.game.legal_moves()
+        legal = self.game.field.legal_moves()
         chosen = random.choice(legal)
         self.game.issue_order(chosen)
 

@@ -85,14 +85,6 @@ class Go():
         sys.stdout.write('place_move %s %s\n' % (col, row))
         sys.stdout.flush()
 
-    def legal_moves(self):
-        legal = []
-        for (ri, row) in enumerate(self.field.cell):
-            for (ci, cell) in enumerate(row):
-                if cell == board.EMPTY:
-                    legal.append((ri, ci))
-        return legal
-        
     def run(self, bot):
         'parse input, update game state and call the bot classes do_turn method'
         not_finished = True

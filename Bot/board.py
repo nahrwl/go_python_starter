@@ -1,14 +1,15 @@
 
 EMPTY, FRIEND, ENEMY, LIBERTY, KO = range(0, 5)
 
-ADJACENT = (
+ADJACENT = [
     (-1, 0),
     (0, 1),
     (1, 0),
     (0, -1)
-)
+]
 
 class Board:
+
     def __init__(self, friend_id, width, height):
         self.friend_id = friend_id
         self.width = width
@@ -35,3 +36,90 @@ class Board:
                 row +=1
             self.cell[row][col] = self.int_to_cell(int(cell))
             col += 1
+
+    def valid_step(self, offset, target):
+        ro, co = offset
+        row, col = target
+        tr = row + ro
+        tc = col + co
+        valid = True
+        if (tr < 0) or (tr >= self.height) or (tc < 0) or (tc >= self.width):
+            valid = False
+        return (valid, (tr, tc))
+
+    def get_adjacent(self, row, col):
+        return [self.valid_step((r, c), (row, col)) for (r, c) in ADJACENT]
+
+    def not_suicide(self, row, col):
+        dfs = DepthFirstSearch(self)
+        dfs.flood_fill_hypothetical(FRIEND, row, col)
+        if EMPTY in dfs.reached:
+            return True
+        else:
+            return self.is_capture(row, col)
+
+    def is_capture(self, row, col):
+        dfs = DepthFirstSearch(self)
+        is_cap = False
+        for (valid, (ar, ac)) in self.get_adjacent(row, col):
+            if valid:
+                dfs.reached = []
+                dfs.flood_fill_after_move(FRIEND, row, col, ar, ac)
+                if EMPTY not in dfs.reached:
+                    is_cap = True
+        return is_cap
+
+
+    def legal_moves(self):
+        legal = []
+        for (ri, row) in enumerate(self.cell):
+            for (ci, cell) in enumerate(row):
+                if cell == EMPTY and self.not_suicide(ri, ci):
+                    legal.append((ri, ci))
+        return legal
+        
+
+
+# End of Board class
+
+
+class DepthFirstSearch:
+
+    def __init__(self, board):
+        self.board = board
+        self.visited = [[False for cell in row] for row in board.cell]
+        self.reached = []
+        self.matched = []
+
+    def search_step(self, fillval, loc):
+        row, col = loc
+        if not self.visited[row][col]:
+            self.visited[row][col] = True
+            if self.board.cell[row][col] == fillval:
+                self.matched.append((row, col))
+                adjacents = self.board.get_adjacent(row, col)
+                for (valid, target) in adjacents:
+                    if valid:
+                        self.search_step (fillval, target)
+            else:
+                reached = self.board.cell[row][col]
+                if reached not in self.reached:
+                    self.reached.append(reached)
+
+    def flood_fill(self, row, col):
+        fillval = self.board.cell[row][col]
+        self.search_step(fillval, (row, col))
+        
+    def flood_fill_hypothetical(self, hcolor, row, col):
+        prev_val = self.board.cell[row][col]
+        self.board.cell[row][col] = hcolor
+        self.search_step(hcolor, (row, col))
+        self.board.cell[row][col] = prev_val
+        
+    def flood_fill_after_move (self, mcolor, mrow, mcol, srow, scol):
+        fillval = self.board.cell[srow][scol]
+        prev_val = self.board.cell[mrow][mcol]
+        self.board.cell[mrow][mcol] = mcolor
+        self.search_step(fillval, (srow, scol))
+        self.board.cell[mrow][mcol] = prev_val
+
