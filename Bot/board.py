@@ -74,7 +74,7 @@ class Board:
     def cells_match(self, c2):
         c1 = self.cell
         if (c1 == None) or (c2 == None): 
-            print("grid is None")
+            #print("grid is None")
             return False
         else:
             result = True
@@ -84,9 +84,9 @@ class Board:
                         break
                     for (count_col, cell) in enumerate(row):
                         if cell != c2[count_row][count_col]:
-                            print("Cells do not match: " + str((count_row, count_col)))
-                            print(cell)
-                            print(c2[count_row][count_col])
+                            #print("Cells do not match: " + str((count_row, count_col)))
+                            #print(cell)
+                            #print(c2[count_row][count_col])
                             result = False
                             break
             except: result = False
@@ -111,7 +111,7 @@ class Board:
 
     def not_ko(self, row, col):
         if self.is_capture(row, col):
-            print("is_capture: " + str((row, col)))
+            #print("is_capture: " + str((row, col)))
             tcell = copy.deepcopy(self.cell)
             tboard = Board(self.friend_id, self.width, self.height)
             tboard.cell = tcell
@@ -121,12 +121,12 @@ class Board:
             ko = False
             #print("check_match")
             for pboard in self.prev_cells:
-                print("pboard")
+                #print("pboard")
                 if tboard.cells_match (pboard):
-                    print ("is ko")
+                    #print ("is ko")
                     ko = True
             if not ko:
-                print("not ko")
+                #print("not ko")
             return not ko
         else: return True
 
@@ -140,11 +140,11 @@ class Board:
         
 
     def push_state(self):
-        print("push_state")
+        #print("push_state")
         limit = len(self.prev_cells) - 1
         for count in range(0, limit):
             index = limit - count
-            print(index)
+            #print(index)
             self.prev_cells[index] = self.prev_cells[index - 1]
         self.prev_cells[0] = copy.deepcopy(self.cell)
             
