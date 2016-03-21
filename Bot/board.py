@@ -73,13 +73,20 @@ class Board:
 
     def cells_match(self, c2):
         c1 = self.cell
-        if (c1 == None) or (c2 == None): return False
+        if (c1 == None) or (c2 == None): 
+            print("grid is None")
+            return False
         else:
             result = True
             try:
                 for (count_row, row) in enumerate(c1):
+                    if result == False:
+                        break
                     for (count_col, cell) in enumerate(row):
-                        if cell == c2[count_row][count_col]:
+                        if cell != c2[count_row][count_col]:
+                            print("Cells do not match: " + str((count_row, count_col)))
+                            print(cell)
+                            print(c2[count_row][count_col])
                             result = False
                             break
             except: result = False
@@ -96,7 +103,7 @@ class Board:
         to_remove = []
         for (valid, (ar, ac)) in self.get_adjacent(row, col):
             if valid and not self.cell[row][col] == self.cell[ar][ac]:
-                dfs.reached = []
+                dfs.refresh()
                 dfs.flood_fill(ar, ac)
                 if EMPTY not in dfs.reached:
                     to_remove = to_remove + dfs.matched
@@ -104,7 +111,7 @@ class Board:
 
     def not_ko(self, row, col):
         if self.is_capture(row, col):
-            #print((row, col))
+            print("is_capture: " + str((row, col)))
             tcell = copy.deepcopy(self.cell)
             tboard = Board(self.friend_id, self.width, self.height)
             tboard.cell = tcell
@@ -114,8 +121,12 @@ class Board:
             ko = False
             #print("check_match")
             for pboard in self.prev_cells:
+                print("pboard")
                 if tboard.cells_match (pboard):
+                    print ("is ko")
                     ko = True
+            if not ko:
+                print("not ko")
             return not ko
         else: return True
 
@@ -123,15 +134,17 @@ class Board:
         legal = []
         for (ri, row) in enumerate(self.cell):
             for (ci, cell) in enumerate(row):
-                if cell == EMPTY and self.not_suicide(ri, ci): # and self.not_ko(ri, ci):
+                if cell == EMPTY and self.not_suicide(ri, ci) and self.not_ko(ri, ci):
                     legal.append((ri, ci))
         return legal
         
 
     def push_state(self):
+        print("push_state")
         limit = len(self.prev_cells) - 1
-        for count in range(0, limit - 1):
+        for count in range(0, limit):
             index = limit - count
+            print(index)
             self.prev_cells[index] = self.prev_cells[index - 1]
         self.prev_cells[0] = copy.deepcopy(self.cell)
             
@@ -179,3 +192,8 @@ class DepthFirstSearch:
         self.search_step(fillval, (srow, scol))
         self.board.cell[mrow][mcol] = prev_val
 
+    def refresh(self):
+        self.visited = [[False for cell in row] for row in self.board.cell]
+        self.reached = []
+        self.matched = []
+        

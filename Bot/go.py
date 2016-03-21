@@ -65,6 +65,7 @@ class Go():
                             if self.field == None:
                                 self.field = board.Board(self.your_botid, self.field_width, self.field_height)
                             self.field.parse(tokens[3])
+                            #print("push_state" + str(tokens))
                             self.field.push_state()
                 elif key0 == "action" and tokens[1] == "move":
                     self.last_timebank = int(tokens[2])
@@ -96,6 +97,7 @@ class Go():
                     if (bot.game == None):
                         bot.setup(self)
                     bot.do_turn()
+                    data = ''
                 elif current_line.lower().startswith("quit"):
                     not_finished = False
             except EOFError:
