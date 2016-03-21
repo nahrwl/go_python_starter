@@ -64,7 +64,7 @@ class Board:
         dfs = DepthFirstSearch(self)
         is_cap = False
         for (valid, (ar, ac)) in self.get_adjacent(row, col):
-            if valid: # and not self.cell[row][col] == self.cell[ar][ac]:
+            if valid and self.cell[row][col] != self.cell[ar][ac] and self.cell[ar][ac] != EMPTY:
                 dfs.reached = []
                 dfs.flood_fill_after_move(FRIEND, row, col, ar, ac)
                 if EMPTY not in dfs.reached:
@@ -103,22 +103,27 @@ class Board:
         self.remove_pieces(to_remove)
 
     def not_ko(self, row, col):
-        tcell = copy.deepcopy(self.cell)
-        tboard = Board(self.friend_id, self.width, self.height)
-        tboard.cell = tcell
-        #tboard[row][col] = FRIEND
-        tboard.place_move(FRIEND, row, col)
-        ko = False
-        for pboard in self.prev_cells:
-            if tboard.cells_match (pboard):
-                ko = True
-        return not ko
+        if self.is_capture(row, col):
+            print((row, col))
+            tcell = copy.deepcopy(self.cell)
+            tboard = Board(self.friend_id, self.width, self.height)
+            tboard.cell = tcell
+            #tboard[row][col] = FRIEND
+            print("place_move")
+            tboard.place_move(FRIEND, row, col)
+            ko = False
+            print("check_match")
+            for pboard in self.prev_cells:
+                if tboard.cells_match (pboard):
+                    ko = True
+            return not ko
+        else: return True
 
     def legal_moves(self):
         legal = []
         for (ri, row) in enumerate(self.cell):
             for (ci, cell) in enumerate(row):
-                if cell == EMPTY and self.not_suicide(ri, ci) : #and self.not_ko(ri, ci):
+                if cell == EMPTY and self.not_suicide(ri, ci) and self.not_ko(ri, ci):
                     legal.append((ri, ci))
         return legal
         
