@@ -104,15 +104,15 @@ class Board:
 
     def not_ko(self, row, col):
         if self.is_capture(row, col):
-            print((row, col))
+            #print((row, col))
             tcell = copy.deepcopy(self.cell)
             tboard = Board(self.friend_id, self.width, self.height)
             tboard.cell = tcell
             #tboard[row][col] = FRIEND
-            print("place_move")
+            #print("place_move")
             tboard.place_move(FRIEND, row, col)
             ko = False
-            print("check_match")
+            #print("check_match")
             for pboard in self.prev_cells:
                 if tboard.cells_match (pboard):
                     ko = True
