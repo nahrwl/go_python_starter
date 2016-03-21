@@ -2,9 +2,9 @@
 
 import sys
 
-from Bot.Go import Go
+from Bot.go import Go
 
-from Bot.Bot import Bot
+from Bot.bot import Bot
 
 bot = Bot()
 game = Go()

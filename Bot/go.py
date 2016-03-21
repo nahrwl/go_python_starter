@@ -7,14 +7,7 @@ import time
 from collections import defaultdict
 from math import sqrt
 
-EMPTY, FRIEND, ENEMY, LIBERTY, KO = range(0, 5)
-
-ADJACENT = (
-    (-1, 0),
-    (0, 1),
-    (1, 0),
-    (0, -1)
-)
+from . import board
 
 class Go():
     def __init__(self):
@@ -69,7 +62,7 @@ class Go():
                             self.move = int(tokens[3])
                         elif key2 == "field":
                             if self.field == None:
-                                self.field = Board(field.width, field.height)
+                                self.field = board.Board(self.your_botid, self.field_width, self.field_height)
                             self.field.parse(tokens[3])
                 elif key0 == "action" and tokens[1] == "move":
                     self.last_timebank = int(tokens[2])
@@ -78,20 +71,29 @@ class Go():
                     pass # FIXME replace this?
 
 
-    def setup(self, data):
-        'parse initial input'
-        self.update(data)
+#    def setup(self, data):
+#        'parse initial input'
+#        self.update(data)
                         
     def time_remaining(self):
         return self.last_timebank - int(1000 * (time.clock() - self.last_update))
     
     def issue_order(self, order):
-        'issue an order'
+        """issue an order, noting that (col, row) is the expected output
+        however internally, (row, col) is used."""
         (row, col) = order
-        sys.stdout.write('place_move %s %s\n' % (row, col))
+        sys.stdout.write('place_move %s %s\n' % (col, row))
         sys.stdout.flush()
+
+    def legal_moves(self):
+        legal = []
+        for (ri, row) in enumerate(self.field.cell):
+            for (ci, cell) in enumerate(row):
+                if cell == board.EMPTY:
+                    legal.append((ri, ci))
+        return legal
         
-    def run(bot):
+    def run(self, bot):
         'parse input, update game state and call the bot classes do_turn method'
         not_finished = True
         data = ''
@@ -104,6 +106,8 @@ class Go():
                     if (bot.game == None):
                         bot.setup(self)
                     bot.do_turn()
+                elif current_line.lower().startswith("quit"):
+                    not_finished = False
             except EOFError:
                 break
             except KeyboardInterrupt:

@@ -1,4 +1,4 @@
-import Random
+import random
 
 class Bot:
 
@@ -11,6 +11,6 @@ class Bot:
 
     def do_turn(self):
         legal = self.game.legal_moves()
-        chosen = Random.choice(legal)
-        return chosen
+        chosen = random.choice(legal)
+        self.game.issue_order(chosen)
 
