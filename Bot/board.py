@@ -1,3 +1,4 @@
+import copy
 
 EMPTY, FRIEND, ENEMY, LIBERTY, KO = range(0, 5)
 
@@ -15,6 +16,7 @@ class Board:
         self.width = width
         self.height = height
         self.cell = [[EMPTY for col in range (0, width)] for row in range(0, height)]
+        self.prev_cells = [None for i in range (0, 11)]
 
     def int_to_cell(self, i):
         if i == 0:
@@ -52,7 +54,7 @@ class Board:
 
     def not_suicide(self, row, col):
         dfs = DepthFirstSearch(self)
-        dfs.flood_fill_hypothetical(FRIEND, row, col)
+        dfs.flood_fill_default(FRIEND, row, col)
         if EMPTY in dfs.reached:
             return True
         else:
@@ -62,23 +64,72 @@ class Board:
         dfs = DepthFirstSearch(self)
         is_cap = False
         for (valid, (ar, ac)) in self.get_adjacent(row, col):
-            if valid:
+            if valid: # and not self.cell[row][col] == self.cell[ar][ac]:
                 dfs.reached = []
                 dfs.flood_fill_after_move(FRIEND, row, col, ar, ac)
                 if EMPTY not in dfs.reached:
                     is_cap = True
         return is_cap
 
+    def cells_match(self, c2):
+        c1 = self.cell
+        if (c1 == None) or (c2 == None): return False
+        else:
+            result = True
+            try:
+                for (count_row, row) in enumerate(c1):
+                    for (count_col, cell) in enumerate(row):
+                        if cell == c2[count_row][count_col]:
+                            result = False
+                            break
+            except: result = False
+            return result
+
+    def remove_pieces(self, to_remove):
+        for (row, col) in to_remove:
+            self.cell[row][col] = EMPTY
+            
+    def place_move(self, owner, row, col):
+        self.cell[row][col] = owner
+        dfs = DepthFirstSearch(self)
+        is_cap = False
+        to_remove = []
+        for (valid, (ar, ac)) in self.get_adjacent(row, col):
+            if valid and not self.cell[row][col] == self.cell[ar][ac]:
+                dfs.reached = []
+                dfs.flood_fill(ar, ac)
+                if EMPTY not in dfs.reached:
+                    to_remove = to_remove + dfs.matched
+        self.remove_pieces(to_remove)
+
+    def not_ko(self, row, col):
+        tcell = copy.deepcopy(self.cell)
+        tboard = Board(self.friend_id, self.width, self.height)
+        tboard.cell = tcell
+        #tboard[row][col] = FRIEND
+        tboard.place_move(FRIEND, row, col)
+        ko = False
+        for pboard in self.prev_cells:
+            if tboard.cells_match (pboard):
+                ko = True
+        return not ko
 
     def legal_moves(self):
         legal = []
         for (ri, row) in enumerate(self.cell):
             for (ci, cell) in enumerate(row):
-                if cell == EMPTY and self.not_suicide(ri, ci):
+                if cell == EMPTY and self.not_suicide(ri, ci) : #and self.not_ko(ri, ci):
                     legal.append((ri, ci))
         return legal
         
 
+    def push_state(self):
+        limit = len(self.prev_cells) - 1
+        for count in range(0, limit - 1):
+            index = limit - count
+            self.prev_cells[index] = self.prev_cells[index - 1]
+        self.prev_cells[0] = copy.deepcopy(self.cell)
+            
 
 # End of Board class
 
@@ -110,7 +161,7 @@ class DepthFirstSearch:
         fillval = self.board.cell[row][col]
         self.search_step(fillval, (row, col))
         
-    def flood_fill_hypothetical(self, hcolor, row, col):
+    def flood_fill_default(self, hcolor, row, col):
         prev_val = self.board.cell[row][col]
         self.board.cell[row][col] = hcolor
         self.search_step(hcolor, (row, col))
