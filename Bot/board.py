@@ -123,7 +123,7 @@ class Board:
         legal = []
         for (ri, row) in enumerate(self.cell):
             for (ci, cell) in enumerate(row):
-                if cell == EMPTY and self.not_suicide(ri, ci) and self.not_ko(ri, ci):
+                if cell == EMPTY and self.not_suicide(ri, ci): # and self.not_ko(ri, ci):
                     legal.append((ri, ci))
         return legal
         
